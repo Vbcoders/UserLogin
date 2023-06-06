@@ -83,7 +83,9 @@ login.addEventListener('click',(e)=>{
     const user = result.user;
     // IdP data available using getAdditionalUserInfo(result)
         alert(user.displayName);
+        create_join_form(user.displayName)
         window.location.href='chat.html';
+
     // ...
   }).catch((error) => {
     // Handle Errors here.
