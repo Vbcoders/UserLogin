@@ -93,9 +93,12 @@ login.addEventListener('click',(e)=>{
 
         var userName =document.createElement('p')
         userName.setAttribute('id','name');
-        container.appendChild(img,userName)
+        container.appendChild(userName)
         userName.style.width='200px';
-        userName.innerHTML=name;
+ 
+        
+
+      userName.innerHTML=name;
     // ...
   }).catch((error) => {
     // Handle Errors here.
