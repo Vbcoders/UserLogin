@@ -82,10 +82,19 @@ login.addEventListener('click',(e)=>{
     // The signed-in user info.
     const user = result.user;
     // IdP data available using getAdditionalUserInfo(result)
-        alert(user.displayName);
-        create_join_form(user.displayName)
-       window.open('https://vbcoders.github.io/privatechat/');
+       var name = user.displayName;
+       var profile = user.photoURL;
+       var gmail = user.email;
+        var img =document.createElement('img')
+        img.setAttribute('src',profile);
+        var container = document.querySelector('.container');
+        container.appendChild(img)
+        img.style.width='200px';
 
+        var userName =document.createElement('p')
+        userName.setAttribute('id','name');
+        img.appendChild(userName)
+        userName.style.width='200px';
     // ...
   }).catch((error) => {
     // Handle Errors here.
