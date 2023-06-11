@@ -89,6 +89,7 @@
               console.log("Name updated successfully");
               alert('OTP verified successfully');
              var name = document.getElementById("nameInput").value;
+            localstorage.clear();
                 localStorage.setItem('name',name);
               window.location.href = 'chat.html';
             })
