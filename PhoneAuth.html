@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Firebase Phone Authentication</title>
+
+  <style>
+
+    body {
+
+      font-family: Arial, sans-serif;
+
+      padding: 20px;
+
+    }
+
+    h1 {
+
+      text-align: center;
+
+    }
+
+    input[type="text"] {
+
+      padding: 10px;
+
+      margin-bottom: 10px;
+
+      width: 100%;
+
+      box-sizing: border-box;
+
+    }
+
+    button {
+
+      padding: 10px 20px;
+
+      background-color: #4CAF50;
+
+      color: white;
+
+      border: none;
+
+      cursor: pointer;
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <h1>Login</h1>
+
+  <p>Please enter your name and mobile number (including the country code). For example, "+91".</p>
+
+  <input type="text" id="nameInput" placeholder="Enter your name">
+
+  <input type="text" id="phoneNumberInput" placeholder="Enter your phone number">
+
+  <button onclick="sendOTP()">Send OTP</button>
+
+  <input type="text" id="otpInput" placeholder="Enter OTP">
+
+  <button onclick="verifyOTP()">Verify OTP</button>
+
+  <div id="recaptcha-container"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+
+  <script>
+
+    // Initialize Firebase
+
+    var firebaseConfig = {
+
+      apiKey: "AIzaSyBEw7edw-jRq47N_d1fJUvBSVnROJ6eCcE",
+
+  authDomain: "messanger-817c9.firebaseapp.com",
+
+  databaseURL: "https://messanger-817c9-default-rtdb.firebaseio.com",
+
+  projectId: "messanger-817c9",
+
+  storageBucket: "messanger-817c9.appspot.com",
+
+  messagingSenderId: "678307855723",
+
+  appId: "1:678307855723:web:ac21ee338a71dd34f9602e",
+
+  measurementId: "G-37SG00MKXC"
+
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    // Function to send OTP
+
+    function sendOTP() {
+
+      var name = document.getElementById("nameInput").value;
+
+      var phoneNumber = document.getElementById("phoneNumberInput").value;
+
+      var appVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
+
+      firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+
+        .then(function (confirmationResult) {
+
+          window.confirmationResult = confirmationResult;
+
+          alert('OTP sent!');
+
+        })
+
+        .catch(function (error) {
+
+          console.log("Error sending OTP", error);
+
+          alert('Error sending OTP. Please refresh the page and try again.');
+
+        });
+
+    }
+
+    // Function to verify OTP
+
+    function verifyOTP() {
+
+      var otp = document.getElementById("otpInput").value;
+
+      confirmationResult.confirm(otp)
+
+        .then(function (result) {
+
+          var user = result.user;
+
+          var name = document.getElementById("nameInput").value;
+
+          user.updateProfile({
+
+            displayName: name
+
+          })
+
+            .then(function () {
+
+              console.log("Name updated successfully");
+
+              alert('OTP verified successfully');
+
+              window.location.href = 'chat.html';
+
+            })
+
+            .catch(function (error) {
+
+              console.log("Error updating name", error);
+
+              alert('Error updating name. Please try again.');
+
+            });
+
+        })
+
+        .catch(function (error) {
+
+          console.log("Error verifying OTP", error);
+
+          alert('OTP verification error. Please enter a valid OTP and try again.');
+
+        });
+
+    }
+
+  </script>
+
+</body>
+
+</html>
+
