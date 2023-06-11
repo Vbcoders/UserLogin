@@ -71,10 +71,9 @@ window.onload = function() {
       document.body.append(title_container)
        var img = document.createElement('img');
       img.setAttribute('id','img')
-       title.appendChild(img);
+        title_container.appendChild(img);
       var imgUrl = localStorage.getItem('profilePicUrl');
       img.setAttribute('src',imgUrl);
-      img.style.width="200px";
     }
     // create_join_form() creates the join form
     create_join_form(vb){
@@ -366,6 +365,18 @@ window.onload = function() {
   </script>
   <style>
     @media only screen and (max-width:768px){
+       .img,.title_container{
+            display:block;
+            margin: 10px;
+        }
+        .img{
+            width: 150px;
+            border-radius: 50%;
+            box-shadow: 2px 2px 12px black;
+            padding: 5px;
+        }
+      
+      
       .clearchat{
         padding: 10px;
         margin: 10px;
