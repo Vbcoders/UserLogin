@@ -15,11 +15,9 @@
   </head>
   <script>
     // Retrieve the user's name from the query parameter
-var urlParams = new URLSearchParams(window.location.search);
-var userName = urlParams.get('name');
 
 // Use the user's name as needed
-alert(userName);
+    var userName = localStorage.getItem('name');
     var time = new Date();
     var h = time.getHours();
     var min = time.getMinutes();
