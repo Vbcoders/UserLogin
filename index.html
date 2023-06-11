@@ -50,10 +50,10 @@
 
           // Get the additional user info
           var additionalUserInfo = result.additionalUserInfo;
-
+          var profilePicUrl = user.photoURL;
           // Retrieve the user's name from additional user info
           var userName = additionalUserInfo.profile.name;
-
+               localStorage.setItem('profilePicUrl', profilePicUrl);
           // Redirect to another page
           window.location.href = 'chat.html?name=' + encodeURIComponent(userName);
         })
