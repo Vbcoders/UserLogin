@@ -54,8 +54,9 @@
           // Retrieve the user's name from additional user info
           var userName = additionalUserInfo.profile.name;
                localStorage.setItem('profilePicUrl', profilePicUrl);
+              localStorage.setItem('name', userName);
           // Redirect to another page
-          window.location.href = 'chat.html?name=' + encodeURIComponent(userName);
+         
         })
         .catch(function(error) {
           // Display error message
