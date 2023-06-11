@@ -6,7 +6,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Firebase Phone Authentication</title>
+  <title>Login</title>
 
   <style>
 
@@ -159,6 +159,8 @@
               alert('OTP verified successfully');
 
               window.location.href = 'chat.html';
+            var name = document.getElementById('nameInput').value;
+            localstorage.setItem('name',name);
 
             })
 
