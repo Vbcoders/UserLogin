@@ -76,7 +76,7 @@ window.onload = function() {
       img.setAttribute('src',imgUrl);
     }
     // create_join_form() creates the join form
-    create_join_form(vb){
+    create_join_form(){
       // YOU MUST HAVE (PARENT = THIS). OR NOT. I'M NOT YOUR BOSS!😂
       var parent = this;
       var join_container = document.createElement('div')
@@ -335,15 +335,17 @@ window.onload = function() {
 
           var message_content_container = document.createElement('div')
           message_content_container.setAttribute('class', 'message_content_container')
-
+            
           var message_content = document.createElement('p')
           message_content.setAttribute('class', 'message_content')
           message_content.textContent = `${message}`
-
           message_user_container.append(message_user)
           message_content_container.append(message_content)
           message_inner_container.append(message_user_container, message_content_container)
           message_container.append(message_inner_container)
+          var time  = document.createElement('p');
+          time.innerText=h+":"+min;
+           message_content.appendChild(time);
 
           chat_content_container.append(message_container)
         });
