@@ -335,7 +335,7 @@ window.onload = function() {
           message_user_container.setAttribute('class', 'message_user_container')
           var message_user = document.createElement('p')
           message_user.setAttribute('class', 'message_user')
-          message_user.textContent = `${name}`+timestamp;
+          message_user.textContent = `${name}`;
 
           var message_content_container = document.createElement('div')
           message_content_container.setAttribute('class', 'message_content_container')
@@ -347,10 +347,11 @@ window.onload = function() {
           message_content_container.append(message_content)
           message_inner_container.append(message_user_container, message_content_container)
           message_container.append(message_inner_container)
-          var time  = document.createElement('p');
-          time.innerText=h+":"+min;
-           message_content.appendChild(time);
-
+          var time = document.createElement('p');
+          time.innerText=timestamp;
+          message.content.appendChild(time);
+          time.style.float='right';
+          time.style.fontSize='18px';
           chat_content_container.append(message_container)
         });
         // Go to the recent message at the bottom of the container
