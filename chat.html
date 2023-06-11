@@ -344,10 +344,10 @@ window.onload = function() {
           message_content.setAttribute('class', 'message_content')
           message_content.textContent = `${message}`+ timestamp;
           var div = document.creatElement('div');
-          div.textContent= `${timestamp}`;
+          div.textContent=`${timestamp}`;
           message_content.appendChild(div);
-          div.style.float='right';
-          div.style.fontSize='18px';
+
+
           message_user_container.append(message_user)
           message_content_container.append(message_content)
           message_inner_container.append(message_user_container, message_content_container)
