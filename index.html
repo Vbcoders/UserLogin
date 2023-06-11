@@ -1,117 +1,60 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <script src=""></script>
+<!DOCTYPE html>
+<html>
+    <meta name="viewport" content="width=divice-width initial-scale=1.0">
+   <head>
+  <style>
+    /* ... CSS styles ... */
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Login</h1>
-        <div  class="box">
-            <button id="login">Google</button>
-        </div>
+  <div class="container">
+    <h2>Login</h2>
+    <div id="login-form">
+      <div class="error-message" id="login-error"></div>
+      <button onclick="loginWithGoogle()">Sign in with Google</button>
     </div>
-    <style>
-        h1{
-            font-size: 30px;
-            color: darkblue;
-        }
-        body{
-            box-sizing: border-box;
-            margin: 50px;
-        }
-        .container{
-            border: 1px solid grey;
-            text-align: center;
-            border-radius: 20px;
-            box-shadow: 2px 2px 10px black;
-            padding: 30px;
-        }
-        button{
-            padding: 2px
-        }
-    </style>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.1/firebase-app.js";
-import { getAuth,GoogleAuthProvider,signInWithRedirect,getRedirectResult,signInWithPopup} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-auth.js";
-const firebaseConfig = {
-apiKey: "AIzaSyBEw7edw-jRq47N_d1fJUvBSVnROJ6eCcE",
-authDomain: "messanger-817c9.firebaseapp.com",
-databaseURL: "https://messanger-817c9-default-rtdb.firebaseio.com",
-projectId: "messanger-817c9",
-storageBucket: "messanger-817c9.appspot.com",
-messagingSenderId: "678307855723",
-appId: "1:678307855723:web:ac21ee338a71dd34f9602e",
-measurementId: "G-37SG00MKXC"
-};
+  </div>
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider(app);
-var login = document.getElementById('login');
-login.addEventListener('click',(e)=>{
-//signInWithRedirect(auth, provider);
-//getRedirectResult(auth)
-//.then((result) => {
-// This gives you a Google Access Token. You can use it to access Google APIs.
-//const credential = GoogleAuthProvider.credentialFromResult(result);
-//const token = credential.accessToken;
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
 
-// The signed-in user info.
-//const user = result.user;
-// IdP data available using getAdditionalUserInfo(result)
-// ...
-//}).catch((error) => {
-// Handle Errors here.
-//const errorCode = error.code;
-//const errorMessage = error.message;
-// The email of the user's account used.
-//const email = error.customData.email;
-// The AuthCredential type that was used.
-//const credential = GoogleAuthProvider.credentialFromError(error);
-// ...
-//});
-    signInWithPopup(auth, provider)
-  .then((result) => {
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const token = credential.accessToken;
-    // The signed-in user info.
-    const user = result.user;
-    // IdP data available using getAdditionalUserInfo(result)
-       var name = user.displayName;
-       var profile = user.photoURL;
-       var gmail = user.email;
-        var img =document.createElement('img')
-        img.setAttribute('src',profile);
-        var container = document.querySelector('.container');
-        container.appendChild(img)
-        img.style.width='200px';
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-        var userName =document.createElement('p')
-        userName.setAttribute('id','name');
-        container.appendChild(userName)
-        userName.style.width='200px';
- 
-        
+    // Initialize the Google Sign-In API
+    gapi.load('auth2', function() {
+      gapi.auth2.init({
+        client_id: 'YOUR_CLIENT_ID'
+      });
+    });
 
-      userName.innerHTML=name;
-    // ...
-  }).catch((error) => {
-    // Handle Errors here.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // The email of the user's account used.
-    const email = error.customData.email;
-    // The AuthCredential type that was used.
-    const credential = GoogleAuthProvider.credentialFromError(error);
-    // ...
-  });
+    // Function to handle Google login
+    function loginWithGoogle() {
+      var provider = new firebase.auth.GoogleAuthProvider();
 
-})
-    </script>
+      firebase.auth().signInWithPopup(provider)
+        .then(function(result) {
+          // Get the signed-in user
+          var user = result.user;
+
+          // Redirect to another page
+          window.location.href = 'profile.html';
+        })
+        .catch(function(error) {
+          // Display error message
+          console.log(error);
+        });
+    }
+  </script>
 </body>
 </html>
