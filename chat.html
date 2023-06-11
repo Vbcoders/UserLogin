@@ -348,7 +348,7 @@ window.onload = function() {
           message_inner_container.append(message_user_container, message_content_container)
           message_container.append(message_inner_container)
           var time = document.createElement('p');
-          time.innerText=timestamp;
+          time.textContent=timestamp;
           message.content.appendChild(time);
           time.style.float='right';
           time.style.fontSize='18px';
