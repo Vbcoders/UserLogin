@@ -245,6 +245,10 @@ window.onload = function() {
       if(parent.get_name() == null && message == null){
         return
       }
+       var timestamp = new Date().toLocaleTimeString(); // Get the current timestamp
+  if (timestamp.includes(":")) {
+    timestamp = timestamp.slice(0, -6); // Remove seconds from the timestamp
+  }
 
       // Get the firebase database value
       db.ref('chats/').once('value', function(message_object) {
@@ -254,6 +258,7 @@ window.onload = function() {
         .set({
           name: parent.get_name(),
           message: message,
+          timestamp: timestamp, 
           index: index
         })
         .then(function(){
@@ -319,7 +324,7 @@ window.onload = function() {
         ordered.forEach(function(data) {
           var name = data.name
           var message = data.message
-
+          var timestamp = data.timestamp;
           var message_container = document.createElement('div')
           message_container.setAttribute('class', 'message_container')
 
@@ -328,7 +333,7 @@ window.onload = function() {
 
           var message_user_container = document.createElement('div')
           message_user_container.setAttribute('class', 'message_user_container')
-
+          message_user.textContent = `${name} (${timestamp})`;
           var message_user = document.createElement('p')
           message_user.setAttribute('class', 'message_user')
           message_user.textContent = `${name}`
