@@ -74,7 +74,6 @@ window.onload = function() {
     create_join_form(vb){
       // YOU MUST HAVE (PARENT = THIS). OR NOT. I'M NOT YOUR BOSS!😂
       var parent = this;
-       var user = vb;
       var join_container = document.createElement('div')
       join_container.setAttribute('id', 'join_container')
       var join_inner_container = document.createElement('div')
@@ -96,6 +95,12 @@ window.onload = function() {
       join_input.value= userName;
       join_input.readOnly=true;
      join_button.classList.add('enabled')
+       var img = document.createElement('img');
+      img.setAttribute('id','img')
+      join_input.appendChild(img);
+      var imgUrl = localStorage.getItem('profilePicUrl');
+      img.setAttribute('src',imgUrl);
+      img.style.width="200px";
       // Every time we type into the join_input
       join_input.onkeyup  = function(){
         // If the input we have is longer that 0 letters
