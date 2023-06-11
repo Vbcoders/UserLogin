@@ -14,6 +14,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
   </head>
   <script>
+    // Retrieve the user's name from the query parameter
+var urlParams = new URLSearchParams(window.location.search);
+var userName = urlParams.get('name');
+
+// Use the user's name as needed
+alert(userName);
     var time = new Date();
     var h = time.getHours();
     var min = time.getMinutes();
@@ -85,11 +91,12 @@ window.onload = function() {
 
       var join_input_container = document.createElement('div')
       join_input_container.setAttribute('id', 'join_input_container')
-
+        
       var join_input = document.createElement('input')
       join_input.setAttribute('id', 'join_input')
       join_input.setAttribute('maxlength', 15)
-      join_input.value= user;
+      join_input.value= userName;
+      join_input.readOnly=true;
      
       // Every time we type into the join_input
       join_input.onkeyup  = function(){
@@ -228,7 +235,7 @@ window.onload = function() {
     // Save name. It literally saves the name to localStorage
     save_name(name){
       // Save name to localStorage
-      localStorage.setItem('name', name)
+      localStorage.setItem('name', userName)
     }
 
     // Sends message/saves the message to firebase database
