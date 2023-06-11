@@ -46,6 +46,12 @@
 
       firebase.auth().signInWithPopup(provider)
         .then(function(result) {
+             if(result.T.message=="The user account has been disabled by an administrator."{
+                    var div = document.createElement('div');
+                        var btn = document.querySelector('button');
+             div,innerText="The user account has been disabled by an administrator.";
+             btn.appendChild(div)
+                }else{
           // Get the signed-in user
           var user = result.user;
 
@@ -57,6 +63,7 @@
 
           // Redirect to another page
           window.location.href = 'chat.html?name=' + encodeURIComponent(userName);
+    }
         })
         .catch(function(error) {
           // Display error message
