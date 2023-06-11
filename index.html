@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html>
-    <meta name="viewport" content="width=divice-width initial-scale=1.0">
-   <head>
+     <meta name="viewport" content="width=divice-width initial-scale=1.0">
+<head>
   <style>
-    /* ... CSS styles ... */
+    /* ... CSS styles remain the same ... */
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Login</h2>
-    <div id="login-form">
-      <div class="error-message" id="login-error"></div>
-      <button onclick="loginWithGoogle()">Sign in with Google</button>
+    <!-- ... Login and register forms remain the same ... -->
+    <div id="profile">
+      <h2>Profile</h2>
+      <div id="profile-info"></div>
+      <button onclick="logout()">Logout</button>
     </div>
   </div>
 
@@ -22,7 +23,7 @@
   <script>
     // Initialize Firebase
     var firebaseConfig = {
-      apiKey: "AIzaSyBEw7edw-jRq47N_d1fJUvBSVnROJ6eCcE",
+     apiKey: "AIzaSyBEw7edw-jRq47N_d1fJUvBSVnROJ6eCcE",
   authDomain: "messanger-817c9.firebaseapp.com",
   databaseURL: "https://messanger-817c9-default-rtdb.firebaseio.com",
   projectId: "messanger-817c9",
@@ -33,30 +34,77 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // Initialize the Google Sign-In API
-    gapi.load('auth2', function() {
-      gapi.auth2.init({
-        client_id: 'YOUR_CLIENT_ID'
-      });
-    });
+    // Get references to form elements
+    var loginForm = document.getElementById('login-form');
+    var loginEmail = document.getElementById('login-email');
+    var loginPassword = document.getElementById('login-password');
+    var loginError = document.getElementById('login-error');
 
-    // Function to handle Google login
-    function loginWithGoogle() {
-      var provider = new firebase.auth.GoogleAuthProvider();
+    var registerForm = document.getElementById('register-form');
+    var registerEmail = document.getElementById('register-email');
+    var registerPassword = document.getElementById('register-password');
+    var registerError = document.getElementById('register-error');
 
-      firebase.auth().signInWithPopup(provider)
-        .then(function(result) {
-          // Get the signed-in user
-          var user = result.user;
-            alert(user.displayName);
-          // Redirect to another page
-          window.location.href = 'chat.html';
+    // Function to handle login
+    function login() {
+      var email = loginEmail.value;
+      var password = loginPassword.value;
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(function(userCredential) {
+          // Clear the form fields and error message
+          loginEmail.value = '';
+          loginPassword.value = '';
+          loginError.textContent = '';
+
+          // You can add additional logic here, such as redirecting to a dashboard page
+           window.location.href = 'chat.html';
         })
         .catch(function(error) {
           // Display error message
-          console.log(error);
+          loginError.textContent = error.message;
         });
     }
-  </script>
-</body>
-</html>
+
+    // Function to handle registration
+    function register() {
+      var email = registerEmail.value;
+      var password = registerPassword.value;
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(function(userCredential) {
+          // Clear the form fields and error message
+          registerEmail.value = '';
+          registerPassword.value = '';
+          registerError.textContent = '';
+
+          // You can add additional logic here, such as sending a verification email
+        })
+        .catch(function(error) {
+          // Display error message
+          registerError.textContent = error.message;
+        });
+    }
+
+    // Function to handle logout
+    function logout() {
+      firebase.auth().signOut();
+    }
+
+    // Listen for auth state changes
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in
+        var profile = document.getElementById('profile');
+        var profileInfo = document.getElementById('profile-info');
+
+        // Display user's name and profile picture
+        var name = user.displayName;
+        var photoURL = user.photoURL;
+
+        profileInfo.innerHTML = `
+          <p>Name: ${name}</p>
+          <img src="${photoURL}" alt="Profile Picture">
+        `;
+
+        // Hide login and register
