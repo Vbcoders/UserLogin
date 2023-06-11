@@ -215,7 +215,7 @@ window.onload = function() {
       chat_logout.textContent = `${parent.get_name()} • logout`
       // "Logout" is really just deleting the name from the localStorage
       chat_logout.onclick = function(){
-        localStorage.clear()
+      
         // Go back to home page
         parent.home()
       }
