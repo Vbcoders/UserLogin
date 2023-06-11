@@ -10,9 +10,9 @@
   <div class="container">
     <h2>Login</h2>
     <div id="login-form">
-      <div class="error-message" id="login-error"></div>
-      <button onclick="loginWithGoogle()">Sign in with Google</button>
+      <button onclick="loginWithGoogle()"><img src="https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-google-icon-logo-png-transparent-svg-vector-bie-supply-14.png"><p>Sign in with Google</p></button>
     </div>
+    <div class="error-message" id="login-error"></div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -60,9 +60,71 @@
         })
         .catch(function(error) {
           // Display error message
-          console.log(error);
+          document.getElementById('login-error'),innerText=error;
         });
     }
   </script>
+  <style>
+    body{
+        box-sizing: border-box;
+        width: 100%;
+    }
+    img{
+        width: 25px;
+        float: left;
+        display: flex;
+    }
+    p{
+        color: blue;
+        font-size: 20px;
+        margin: 5px;
+       display: flex;
+    }
+    img,p{
+        display: inline;
+        margin: 0px;
+        float: center;
+    }
+    #login-error{
+        color: red;
+        font-size: 15px;
+        font-weight: 800;
+        margin: 10px;
+    }
+    .container{
+        margin: 0px auto;
+        width: 70%;
+        text-align: center;
+        margin-top: 10%;
+        border-radius: 20px;
+        padding: 20px;
+        background-color: whitesmoke;
+    }
+    h2{
+        font-size: 30px;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-weight: 800;
+        color: royalblue;
+    }
+    button{
+        width: 50%;
+        padding: 5px;
+        background-color:white;
+        border: none;
+        border-radius: 30px;
+    }
+    button:hover{
+        cursor: pointer;
+        box-shadow: 2px 2px 12px black;
+    }
+    h3{
+        text-align: center;
+        color: grey;
+        opacity: 50%;
+    }
+  </style>
+  <div>
+    <h3>Vbcoders</h3>
+  </div>
 </body>
 </html>
