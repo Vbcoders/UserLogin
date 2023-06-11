@@ -106,9 +106,6 @@ window.onload = function() {
           join_button.classList.add('enabled')
           // Allow the user to click the button
           join_button.onclick = function(){
-            if(join_pass_input.value!="vbcoders.dev"){
-               alert("Wrrong password !");
-            }else{
             // Save the name to local storage. Passing in
             // the join_input.value
             parent.save_name(join_input.value)
@@ -117,7 +114,6 @@ window.onload = function() {
             // parent = this. But it is not the join_button
             // It is (MEME_CHAT = this).
             parent.create_chat()
-            }
           }
         }else{
           // If the join_input is empty then turn off the
