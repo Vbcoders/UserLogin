@@ -46,7 +46,7 @@
 
       firebase.auth().signInWithPopup(provider)
         .then(function(result) {
-             if(result.T.message=="The user account has been disabled by an administrator."{
+             if(result.T.message=="The user account has been disabled by an administrator."){
                     var div = document.createElement('div');
                         var btn = document.querySelector('button');
              div,innerText="The user account has been disabled by an administrator.";
