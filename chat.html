@@ -333,10 +333,9 @@ window.onload = function() {
 
           var message_user_container = document.createElement('div')
           message_user_container.setAttribute('class', 'message_user_container')
-          message_user.innerText= name + ' (' + timestamp + ')';
           var message_user = document.createElement('p')
           message_user.setAttribute('class', 'message_user')
-          message_user.textContent = `${name}`
+          message_user.textContent = `${name}`+timestamp;
 
           var message_content_container = document.createElement('div')
           message_content_container.setAttribute('class', 'message_content_container')
