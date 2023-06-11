@@ -2,6 +2,7 @@
 <html>
        <meta name="viewport" content="width=divice-width initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 <head>
+       <script src="https://kit.fontawesome.com/06b45a7278.js" crossorigin="anonymous"></script>
   <style>
     /* ... CSS styles ... */
   </style>
@@ -12,7 +13,7 @@
     <div id="login-form">
       <button onclick="loginWithGoogle()"><img src="https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-google-icon-logo-png-transparent-svg-vector-bie-supply-14.png"><p>Sign in with Google</p></button>
    <br><br>
-           <button onclick="phone()">Phone Login</button>
+           <button onclick="phone()"><i class="fa-solid fa-phone"></i><b>Phone Login</b></button>
          </div>
     <div class="error-message" id="login-error"></div>
   </div>
@@ -73,6 +74,29 @@
         box-sizing: border-box;
         width: 100%;
     }
+     i,b{
+         display: inline;
+
+        margin: 0px;
+
+        float: center;
+         }
+    i{
+         width: 25px;
+
+        float: left;
+
+        display: flex;  
+                }
+      b{
+             color: blue;
+
+        font-size: 20px;
+
+        margin: 5px;
+
+       display: flex;
+             }
     img{
         width: 25px;
         float: left;
