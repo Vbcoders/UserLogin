@@ -220,21 +220,23 @@ window.onload = function() {
       }
       var clearchat = document.createElement('button');
       clearchat.classList.add('clearchat');
-      clearchat.innerHTML='<i class="fa-solid fa-trash"></i>Clear your messages';
+      clearchat.innerText='Clear your messages';
       chat_inner_container.appendChild(clearchat);
       chat_logout_container.append(chat_logout)
       chat_input_container.append(chat_input, chat_input_send)
       chat_inner_container.append(chat_content_container, chat_input_container, chat_logout_container)
       chat_container.append(chat_inner_container)
       document.body.append(chat_container)
+      var messagesDeleted = 0;
       clearchat.addEventListener('click',()=>{
         db.ref('chats/').once('value', function(snapshot) {
     snapshot.forEach(function(childSnapshot) {
       var message = childSnapshot.val();
       if (message.name === localStorage.getItem('name')) {
         db.ref('chats/' + childSnapshot.key).remove();
+       messagesDeleted++;
+       clearchat.innerText='Deleted...'+messagesDeleted+" Messages of you";
       }
-       alert("Cleared all messages of your's");
     });
     refresh_chat();
   });
