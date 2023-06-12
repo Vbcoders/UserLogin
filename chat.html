@@ -345,8 +345,9 @@ window.onload = function() {
           message_content.textContent = `${message}`;
          var div = document.createElement('div');
          div.textContent=timestamp;
-         message_content.appendChild(div)
+          message_content_container.appendChild(div)
          div.style.float='right';
+          div.style.color='black';
           message_user_container.append(message_user)
           message_content_container.append(message_content)
           message_inner_container.append(message_user_container, message_content_container)
