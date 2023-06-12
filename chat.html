@@ -246,6 +246,10 @@ window.onload = function() {
         return
       }
        var timestamp = new Date().toLocaleTimeString(); // Get the current timestamp
+       var timePeriod = new Date().toLocaleTimeString([], {
+         hour: '2-digit', minute: '2-digit', hour12: true 
+       }).split(' ')[1];
+      
   if (timestamp.includes(":")) {
     timestamp = timestamp.slice(0, -6); // Remove seconds from the timestamp
   }
@@ -259,6 +263,7 @@ window.onload = function() {
           name: parent.get_name(),
           message: message,
           timestamp: timestamp, 
+          timePeriod: timePeriod,
           index: index
         })
         .then(function(){
@@ -344,7 +349,7 @@ window.onload = function() {
           message_content.setAttribute('class', 'message_content')
           message_content.textContent = `${message}`;
          var div = document.createElement('div');
-         div.textContent=timestamp;
+         div.textContent=timestamp +timePeriod;
           message_content.appendChild(div)
          div.style.float='right';
           div.style.color='black';
