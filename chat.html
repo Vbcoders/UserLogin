@@ -220,7 +220,7 @@ window.onload = function() {
       }
       var clearchat = document.createElement('button');
       clearchat.classList.add('clearchat');
-      clearchat.innerText='Clear your messages';
+      clearchat.innerHTML='<i class="fa-solid fa-trash"></i>Clear your messages';
       chat_inner_container.appendChild(clearchat);
       chat_logout_container.append(chat_logout)
       chat_input_container.append(chat_input, chat_input_send)
