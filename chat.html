@@ -233,8 +233,8 @@ window.onload = function() {
       var message = childSnapshot.val();
       if (message.name === localStorage.getItem('name')) {
         db.ref('chats/' + childSnapshot.key).remove();
-        alert("Cleared all messages of your's");
       }
+       alert("Cleared all messages of your's");
     });
     refresh_chat();
   });
