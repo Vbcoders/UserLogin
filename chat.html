@@ -330,6 +330,7 @@ window.onload = function() {
           var name = data.name
           var message = data.message
           var timestamp = data.timestamp;
+          var timePeriod = data.timePeriod;
           var message_container = document.createElement('div')
           message_container.setAttribute('class', 'message_container')
 
@@ -349,7 +350,7 @@ window.onload = function() {
           message_content.setAttribute('class', 'message_content')
           message_content.textContent = `${message}`;
          var div = document.createElement('div');
-         div.textContent=timePeriod;
+         div.textContent=timestamp+timePeriod;
           message_content.appendChild(div)
          div.style.float='right';
           div.style.color='black';
