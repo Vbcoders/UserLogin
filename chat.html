@@ -71,7 +71,7 @@ window.onload = function() {
       document.body.append(title_container)
        var img = document.createElement('img');
       img.setAttribute('id','img')
-        title_container.appendChild(img);
+        title.appendChild(img);
       var imgUrl = localStorage.getItem('profilePicUrl');
       img.setAttribute('src',imgUrl);
     }
@@ -398,11 +398,11 @@ window.onload = function() {
   </script>
   <style>
     @media only screen and (max-width:768px){
-       #img,#title_container{
-            display:block;
+       #img,#title{
+           display: block;
         }
         #img{
-            width: 150px;
+            width: 100x;
             border-radius: 50%;
             box-shadow: 2px 2px 12px black;
             padding: 5px;
