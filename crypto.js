@@ -1,102 +1,158 @@
-/* Supplemental UI fixes for the private chat. The main chat/encryption logic lives in chat.html. */
+/* Private chat UI/security enhancements. */
 (function () {
   'use strict';
 
-  function get(id) { return document.getElementById(id); }
+  const get = id => document.getElementById(id);
+  const css = document.createElement('style');
+  css.textContent = `
+    .meta.receipt-sent{opacity:.65}.meta.receipt-delivered{opacity:.75}.meta.receipt-read{color:#2563eb;opacity:1;font-weight:700}
+    .replyQuote{cursor:pointer}.replyQuote.reply-highlight{animation:replyPulse 1.4s ease;border-radius:8px}
+    @keyframes replyPulse{0%,100%{outline:0}30%{outline:3px solid #60a5fa;outline-offset:2px}}
+    #screenshotWarning{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);z-index:10000;display:none;width:min(90vw,430px);padding:24px 22px;border-radius:20px;background:rgba(15,23,42,.96);color:#fff;text-align:center;box-shadow:0 20px 70px rgba(0,0,0,.35);backdrop-filter:blur(12px)}
+    #screenshotWarning.show{display:block;animation:screenshotIn .18s ease-out forwards}
+    #screenshotWarning .sw-icon{font-size:34px;margin-bottom:8px}#screenshotWarning .sw-title{font-size:19px;font-weight:800}#screenshotWarning .sw-text{font-size:13px;opacity:.82;margin-top:6px}
+    @keyframes screenshotIn{to{transform:translate(-50%,-50%) scale(1)}}
+  `;
+  document.head.appendChild(css);
 
-  function ensureReplyComposer() {
-    const composer = document.querySelector('.composer');
-    if (!composer || get('replyComposer')) return;
-
-    const box = document.createElement('div');
-    box.id = 'replyComposer';
-    box.className = 'replyComposer';
-    box.innerHTML =
-      '<div class="replyComposerText">' +
-        '<strong id="replyComposerLabel">Replying to message</strong>' +
-        '<span id="replyComposerValue"></span>' +
-      '</div>' +
-      '<button id="replyComposerClose" class="replyComposerClose" type="button">×</button>';
-
-    composer.insertBefore(box, composer.firstChild);
-
-    get('replyComposerClose').onclick = function () {
-      window.replyTarget = null;
-      box.classList.remove('show');
-      const input = get('input');
-      if (input) input.focus();
-    };
-  }
-
-  function showReplyPreview() {
-    ensureReplyComposer();
-    const box = get('replyComposer');
-    const target = window.replyTarget;
-    if (!box || !target) return;
-
-    const value = get('replyComposerValue');
-    if (value) {
-      value.textContent = target.plain && target.plain.text
-        ? target.plain.text
-        : '📷 Image';
+  function screenshotWarning() {
+    let box = get('screenshotWarning');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'screenshotWarning';
+      box.innerHTML = '<div class="sw-icon">⚠️</div><div class="sw-title">Screenshot attempt detected</div><div class="sw-text"></div>';
+      document.body.appendChild(box);
     }
+    const user = firebase.auth().currentUser;
+    const name = user?.displayName || user?.email?.split('@')[0] || 'User';
+    box.querySelector('.sw-text').textContent = name + ' — trying to take a screenshot of this chat.';
+    box.classList.remove('show');
+    void box.offsetWidth;
     box.classList.add('show');
+    clearTimeout(box._hideTimer);
+    box._hideTimer = setTimeout(() => box.classList.remove('show'), 2800);
   }
 
-  function clearReplyPreview() {
-    const box = get('replyComposer');
-    if (box) box.classList.remove('show');
-    window.replyTarget = null;
-  }
-
-  function install() {
-    ensureReplyComposer();
-
-    const replyButton = get('reply');
-    if (replyButton && !replyButton.dataset.replyFixInstalled) {
-      replyButton.dataset.replyFixInstalled = '1';
-      replyButton.addEventListener('click', function () {
-        // chat.html sets replyTarget in its existing handler.
-        setTimeout(showReplyPreview, 0);
-      });
+  // Browsers do not expose a reliable mobile/OS screenshot event. We can
+  // reliably react to PrintScreen-style keyboard attempts, but native phone
+  // screenshots require a native Android/iOS wrapper for full detection.
+  document.addEventListener('keydown', e => {
+    const k = String(e.key || '').toLowerCase();
+    if (k === 'printscreen' || (e.shiftKey && e.ctrlKey && k === 's') || (e.shiftKey && e.metaKey && (k === '3' || k === '4'))) {
+      screenshotWarning();
     }
+  }, true);
 
-    const sendButton = get('send');
-    if (sendButton && !sendButton.dataset.replyFixInstalled) {
-      sendButton.dataset.replyFixInstalled = '1';
-      sendButton.addEventListener('click', function () {
-        // send() is async. Wait for it to finish, then force the composer
-        // preview closed so a sent reply can never remain in the typing row.
-        setTimeout(clearReplyPreview, 150);
-        setTimeout(clearReplyPreview, 500);
-        setTimeout(clearReplyPreview, 1200);
-      });
+  function jumpToReply(quote) {
+    const rows = Array.from(document.querySelectorAll('#messages .row'));
+    const wanted = String(quote.textContent || '').replace(/^↩\s*/, '').trim();
+    if (!wanted) return;
+    const currentRow = quote.closest('.row');
+    const currentIndex = rows.indexOf(currentRow);
+    let target = null;
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const text = rows[i].querySelector('.text,.caption');
+      if (text && text.textContent.trim() === wanted) { target = rows[i]; break; }
     }
-
-    const input = get('input');
-    if (input && !input.dataset.replyFixInstalled) {
-      input.dataset.replyFixInstalled = '1';
-      input.addEventListener('input', function () {
-        // If the input has been cleared by send(), the reply preview must go.
-        if (!input.value.trim() && !window.replyTarget) {
-          const box = get('replyComposer');
-          if (box) box.classList.remove('show');
-        }
-      });
+    if (!target) {
+      for (let i = 0; i < currentIndex; i++) {
+        const text = rows[i].querySelector('.text,.caption');
+        if (text && text.textContent.trim() === wanted) { target = rows[i]; }
+      }
+    }
+    if (!target) return;
+    target.scrollIntoView({behavior:'smooth',block:'center'});
+    const bubble = target.querySelector('.bubble');
+    if (bubble) {
+      bubble.classList.remove('reply-highlight');
+      void bubble.offsetWidth;
+      bubble.classList.add('reply-highlight');
+      setTimeout(() => bubble.classList.remove('reply-highlight'), 1500);
     }
   }
 
-  const observer = new MutationObserver(install);
+  function installReplyJump() {
+    document.querySelectorAll('#messages .replyQuote').forEach(q => {
+      if (q.dataset.jumpInstalled) return;
+      q.dataset.jumpInstalled = '1';
+      q.addEventListener('click', e => { e.stopPropagation(); jumpToReply(q); });
+    });
+  }
+
+  function pairMatches(m, uid, other) {
+    return !!m && ((m.uid === uid && m.recipientUid === other) || (m.uid === other && m.recipientUid === uid));
+  }
+
+  function getChatRows(snap, uid) {
+    const rows = [];
+    let other = null;
+    snap.forEach(x => {
+      const m = x.val();
+      if (!m || !m.uid || !m.recipientUid) return;
+      if (m.uid === uid) other = other || m.recipientUid;
+      else if (m.recipientUid === uid) other = other || m.uid;
+    });
+    snap.forEach(x => {
+      const m = x.val();
+      if (!m || !pairMatches(m, uid, other)) return;
+      rows.push({...m,key:x.key});
+    });
+    rows.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+    return {rows, other};
+  }
+
+  async function markReceipts() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    const snap = await firebase.database().ref('chats').once('value');
+    const {rows} = getChatRows(snap, user.uid);
+    const visible = document.visibilityState === 'visible';
+    const updates = {};
+    rows.forEach(m => {
+      if (m.uid !== user.uid && m.recipientUid === user.uid) {
+        if (m.deliveryStatus !== 'read') updates['chats/' + m.key + '/deliveryStatus'] = visible ? 'read' : 'delivered';
+        if (visible) updates['chats/' + m.key + '/readAt'] = firebase.database.ServerValue.TIMESTAMP;
+        else if (!m.deliveredAt) updates['chats/' + m.key + '/deliveredAt'] = firebase.database.ServerValue.TIMESTAMP;
+      }
+    });
+    if (Object.keys(updates).length) await firebase.database().ref().update(updates).catch(()=>{});
+    updateReceiptLabels(rows, user.uid);
+  }
+
+  function updateReceiptLabels(rows, uid) {
+    const domRows = Array.from(document.querySelectorAll('#messages .row'));
+    rows.forEach((m, i) => {
+      if (m.uid !== uid || !domRows[i]) return;
+      const meta = domRows[i].querySelector('.meta');
+      if (!meta) return;
+      const time = new Date(m.timestamp || Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const status = m.deliveryStatus === 'read' ? '✓✓' : m.deliveryStatus === 'delivered' ? '✓✓' : '✓';
+      meta.textContent = time + '  ' + status;
+      meta.classList.remove('receipt-sent','receipt-delivered','receipt-read');
+      meta.classList.add(m.deliveryStatus === 'read' ? 'receipt-read' : m.deliveryStatus === 'delivered' ? 'receipt-delivered' : 'receipt-sent');
+    });
+  }
+
+  let receiptTimer = null;
+  function startReceipts() {
+    const run = () => {
+      clearTimeout(receiptTimer);
+      receiptTimer = setTimeout(async () => {
+        try { await markReceipts(); } catch (_) {}
+      }, 350);
+    };
+    run();
+    document.addEventListener('visibilitychange', run);
+    const messages = get('messages');
+    if (messages) new MutationObserver(() => { installReplyJump(); run(); }).observe(messages,{childList:true,subtree:true});
+    setInterval(run, 2500);
+  }
+
   function start() {
-    install();
-    const root = get('root');
-    if (root) observer.observe(root, { childList: true, subtree: true });
-    setInterval(install, 500);
+    startReceipts();
+    installReplyJump();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start);
-  } else {
-    start();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
 })();
