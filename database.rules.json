@@ -1,0 +1,19 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "chats": {
+      "$messageId": {
+        ".validate": "newData.hasChildren(['name','timestampMs']) && newData.child('name').isString() && newData.child('timestampMs').exists()"
+      }
+    },
+    "presence": {
+      "typing": {
+        "$user": {
+          ".write": "auth != null && $user === encodeURIComponent(auth.token.email)",
+          ".read": "auth != null"
+        }
+      }
+    }
+  }
+}
