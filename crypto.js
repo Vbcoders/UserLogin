@@ -15,7 +15,7 @@
   `;
   document.head.appendChild(css);
 
-  function screenshotWarning() {
+  function screenshotWarning(reason) {
     let box = get('screenshotWarning');
     if (!box) {
       box = document.createElement('div');
@@ -23,9 +23,10 @@
       box.innerHTML = '<div class="sw-icon">⚠️</div><div class="sw-title">Screenshot attempt detected</div><div class="sw-text"></div>';
       document.body.appendChild(box);
     }
-    const user = firebase.auth().currentUser;
+    const user = window.firebase?.auth?.().currentUser;
     const name = user?.displayName || user?.email?.split('@')[0] || 'User';
     box.querySelector('.sw-text').textContent = name + ' — trying to take a screenshot of this chat.';
+    box.dataset.reason = reason || 'unknown';
     box.classList.remove('show');
     void box.offsetWidth;
     box.classList.add('show');
@@ -33,15 +34,44 @@
     box._hideTimer = setTimeout(() => box.classList.remove('show'), 2800);
   }
 
-  // Browsers do not expose a reliable mobile/OS screenshot event. We can
-  // reliably react to PrintScreen-style keyboard attempts, but native phone
-  // screenshots require a native Android/iOS wrapper for full detection.
+  // Web/Chrome limitation: browsers do not expose a native Android screenshot
+  // event. These handlers cover screenshot keyboard shortcuts and browser
+  // lifecycle transitions that some Android/browser configurations expose.
   document.addEventListener('keydown', e => {
     const k = String(e.key || '').toLowerCase();
     if (k === 'printscreen' || (e.shiftKey && e.ctrlKey && k === 's') || (e.shiftKey && e.metaKey && (k === '3' || k === '4'))) {
-      screenshotWarning();
+      e.preventDefault();
+      screenshotWarning('keyboard');
     }
   }, true);
+
+  let lifecycleCandidate = false;
+  let lifecycleTimer = null;
+  function markLifecycleCandidate(reason) {
+    if (document.visibilityState !== 'visible') return;
+    lifecycleCandidate = true;
+    clearTimeout(lifecycleTimer);
+    lifecycleTimer = setTimeout(() => { lifecycleCandidate = false; }, 1400);
+    screenshotWarning(reason);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      lifecycleCandidate = true;
+      clearTimeout(lifecycleTimer);
+      lifecycleTimer = setTimeout(() => { lifecycleCandidate = false; }, 1400);
+    } else if (lifecycleCandidate) {
+      markLifecycleCandidate('visibility');
+    }
+  }, true);
+  window.addEventListener('blur', () => {
+    clearTimeout(lifecycleTimer);
+    lifecycleCandidate = true;
+    lifecycleTimer = setTimeout(() => { lifecycleCandidate = false; }, 1200);
+  }, true);
+  window.addEventListener('focus', () => {
+    if (lifecycleCandidate) markLifecycleCandidate('focus');
+  }, true);
+  window.addEventListener('beforeprint', () => screenshotWarning('print'), true);
 
   function jumpToReply(quote) {
     const rows = Array.from(document.querySelectorAll('#messages .row'));
