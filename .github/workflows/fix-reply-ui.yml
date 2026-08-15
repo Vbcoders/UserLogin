@@ -1,0 +1,75 @@
+name: Fix reply composer state
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix-reply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fix reply preview and typing state
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('chat.html')
+          s = p.read_text()
+
+          s = s.replace(
+              '.typing.hidden{visibility:hidden}.composer{position:relative;',
+              '.typing.hidden{visibility:hidden}.replyComposer{display:none;align-items:center;gap:8px;padding:8px 12px;background:#eef5ff;border:1px solid #dbe8ff;border-radius:14px;margin:0 0 8px}.replyComposer.show{display:flex}.replyComposerText{flex:1;min-width:0;font-size:12px;color:#52627a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.replyComposerText strong{display:block;color:var(--blue);font-size:11px;margin-bottom:2px}.replyComposerClose{width:28px;height:28px;border:0;border-radius:50%;background:#dfeaff;color:#52627a}.composer{position:relative;'
+          )
+
+          s = s.replace(
+              '<footer class="composer"><div id="preview" class="preview">',
+              '<footer class="composer"><div id="replyComposer" class="replyComposer"><div id="replyComposerText" class="replyComposerText"></div><button id="replyComposerClose" class="replyComposerClose">×</button></div><div id="preview" class="preview">'
+          )
+
+          s = s.replace(
+              "$('reply').onclick=()=>{if(actionTarget){replyTarget=actionTarget;closeSheet();$('input').focus()}};",
+              "$('reply').onclick=()=>{if(actionTarget){replyTarget=actionTarget;closeSheet();showReplyComposer();$('input').focus()}};$('replyComposerClose').onclick=clearReply;"
+          )
+
+          s = s.replace(
+              "function closeSheet(){actionTarget=null;",
+              "function showReplyComposer(){const q=replyTarget?.plain?.text||'Image';$('replyComposerText').innerHTML='<strong>Replying to</strong>'+escapeHtml(q);$('replyComposer').classList.add('show')}function clearReply(){replyTarget=null;if($('replyComposer'))$('replyComposer').classList.remove('show')}function escapeHtml(v){return String(v).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]))}function closeSheet(){actionTarget=null;"
+          )
+
+          s = s.replace(
+              "input.value='';input.style.height='auto';replyTarget=null;clearFile();handleInput();setTyping(false)",
+              "input.value='';input.style.height='auto';clearReply();clearFile();handleInput();setTyping(false);db.ref('presence/typing/'+me.uid).set({active:false,partnerUid,ts:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})"
+          )
+
+          s = s.replace(
+              "function setTyping(active){if(!me||!partnerUid)return;clearTimeout(typingTimer);const ref=db.ref('presence/typing/'+me.uid);if(active){ref.set({active:true,partnerUid,ts:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{});typingTimer=setTimeout(()=>setTyping(false),2300)}else ref.set({active:false,partnerUid,ts:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})}",
+              "function setTyping(active){if(!me||!partnerUid)return;clearTimeout(typingTimer);const ref=db.ref('presence/typing/'+me.uid);if(active){ref.set({active:true,partnerUid,ts:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{});typingTimer=setTimeout(()=>setTyping(false),2300)}else{ref.set({active:false,partnerUid,ts:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{});ref.onDisconnect().remove().catch(()=>{})}}"
+          )
+
+          p.write_text(s)
+          PY
+
+      - name: Commit fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add chat.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Fix reply state after sending message'
+          git push
+
+      - name: Remove temporary workflow
+        if: always()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if [ -f .github/workflows/fix-reply-ui.yml ]; then
+            git rm .github/workflows/fix-reply-ui.yml
+            git commit -m 'Remove temporary reply fix workflow' || true
+            git push || true
+          fi
