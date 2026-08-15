@@ -34,9 +34,10 @@
     box._hideTimer = setTimeout(() => box.classList.remove('show'), 2800);
   }
 
-  // Web/Chrome limitation: browsers do not expose a native Android screenshot
-  // event. These handlers cover screenshot keyboard shortcuts and browser
-  // lifecycle transitions that some Android/browser configurations expose.
+  // Chrome/web limitation: Android Chrome does not expose a native phone
+  // screenshot event. Do NOT treat visibility, blur, focus, or app switching
+  // as a screenshot because that creates false positives. Only use browser
+  // events that actually provide a screenshot/print keyboard signal.
   document.addEventListener('keydown', e => {
     const k = String(e.key || '').toLowerCase();
     if (k === 'printscreen' || (e.shiftKey && e.ctrlKey && k === 's') || (e.shiftKey && e.metaKey && (k === '3' || k === '4'))) {
@@ -45,32 +46,6 @@
     }
   }, true);
 
-  let lifecycleCandidate = false;
-  let lifecycleTimer = null;
-  function markLifecycleCandidate(reason) {
-    if (document.visibilityState !== 'visible') return;
-    lifecycleCandidate = true;
-    clearTimeout(lifecycleTimer);
-    lifecycleTimer = setTimeout(() => { lifecycleCandidate = false; }, 1400);
-    screenshotWarning(reason);
-  }
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      lifecycleCandidate = true;
-      clearTimeout(lifecycleTimer);
-      lifecycleTimer = setTimeout(() => { lifecycleCandidate = false; }, 1400);
-    } else if (lifecycleCandidate) {
-      markLifecycleCandidate('visibility');
-    }
-  }, true);
-  window.addEventListener('blur', () => {
-    clearTimeout(lifecycleTimer);
-    lifecycleCandidate = true;
-    lifecycleTimer = setTimeout(() => { lifecycleCandidate = false; }, 1200);
-  }, true);
-  window.addEventListener('focus', () => {
-    if (lifecycleCandidate) markLifecycleCandidate('focus');
-  }, true);
   window.addEventListener('beforeprint', () => screenshotWarning('print'), true);
 
   function jumpToReply(quote) {
