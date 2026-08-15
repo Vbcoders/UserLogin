@@ -4,16 +4,24 @@
     ".write": "auth != null",
     "chats": {
       "$messageId": {
-        ".validate": "newData.hasChildren(['name','timestampMs']) && newData.child('name').isString() && newData.child('timestampMs').exists()"
+        ".validate": "newData.hasChildren(['uid','toUid','timestampMs']) && newData.child('uid').isString() && newData.child('toUid').isString() && newData.child('timestampMs').exists()"
+      }
+    },
+    "users": {
+      "$uid": {
+        ".write": "auth != null && $uid === auth.uid",
+        ".read": "auth != null"
+      }
+    },
+    "e2eeKeys": {
+      "$uid": {
+        ".write": "auth != null && $uid === auth.uid",
+        ".read": "auth != null"
       }
     },
     "presence": {
-      "typing": {
-        "$user": {
-          ".write": "auth != null && $user === encodeURIComponent(auth.token.email)",
-          ".read": "auth != null"
-        }
-      }
+      ".read": "auth != null",
+      ".write": "auth != null"
     }
   }
 }
