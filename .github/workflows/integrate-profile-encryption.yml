@@ -1,0 +1,30 @@
+name: Integrate account and encryption
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integrate
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('chat.html')
+          s=p.read_text()
+          old="E('myProfile').onclick=()=>{alert('Signed in as: '+displayName(currentUser));closeMenu()}"
+          new="E('myProfile').onclick=()=>{window.location.href='profile.html'}"
+          if old in s:
+              s=s.replace(old,new,1)
+          if 'src=\"crypto.js\"' not in s:
+              s=s.replace('</body>','<script src=\"crypto.js\"></script></body>',1)
+          p.write_text(s)
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add chat.html
+          git diff --cached --quiet || git commit -m "Connect My Account and enable encrypted chat"
+          git push
